@@ -1,0 +1,65 @@
+#2
+public class ShopContentProvider extends ContentProvider {
+    public static final String TAG = ShopContentProvider.class.getSimpleName();
+    private ShopOpenHelper mShopOpenHelper;
+    private static final UriMatcher URI_MATCHER;
+
+    static {
+        URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+        URI_MATCHER.addURI(ShopColumns.AUTHORITY, ShopColumns.TABLE_NAME, ShopColumns.CODE);
+    }
+
+    @Override
+    public boolean onCreate() {
+        mShopOpenHelper = new ShopOpenHelper(getContext());
+        return true;
+    }
+
+    @Override
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        isValidUri(uri);
+        SQLiteDatabase database = mShopOpenHelper.getReadableDatabase();
+        Cursor cursor = database.query(getType(uri), projection, selection, selectionArgs, null, null, sortOrder);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
+    }
+
+    @Override
+    public String getType(Uri uri) {
+        return uri.getPathSegments().get(0);
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        isValidUri(uri);
+        SQLiteDatabase database = mShopOpenHelper.getWritableDatabase();
+        long rowId = database.insert(getType(uri), null, values);
+        Uri insertUri = ContentUris.withAppendedId(uri, rowId);
+        getContext().getContentResolver().notifyChange(insertUri, null);
+        return insertUri;
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        isValidUri(uri);
+
+        SQLiteDatabase database = mShopOpenHelper.getWritableDatabase();
+        int deleteCount = database.delete(getType(uri), selection, selectionArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return deleteCount;
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        isValidUri(uri);
+        SQLiteDatabase database = mShopOpenHelper.getWritableDatabase();
+        int updateCount = database.update(getType(uri), values, selection, selectionArgs);
+        getContext().getContentResolver().notifyChange(uri, null);
+        return updateCount;
+    }
+
+    private void isValidUri(Uri uri) {
+        if (URI_MATCHER.match(uri) != ShopColumns.CODE) {
+            throw new IllegalArgumentException("Unknown URI : " + uri);
+        }
+    }
