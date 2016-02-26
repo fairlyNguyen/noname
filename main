@@ -51,14 +51,17 @@ public class ContainerFragment extends Fragment {
         // Inflate the layout for this fragment
         Fragment fragment = new TopScreenFragment().newInstance(mListData);
         replaceFragment(getChildFragmentManager(), fragment, TopScreenFragment.TAG);
-        return inflater.inflate(R.layout.topscreencontainerfragment, container, false);
+        return inflater.inflate(R.layout.containerfragment, container, false);
     }
 
 
     public void replaceFragment(FragmentManager fragmentManager, Fragment fragment, String tag) {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.topscreencontainerfragment_framelayout, fragment, tag);
+        transaction.add(R.id.containerfragment_framelayout, fragment, tag);
         transaction.addToBackStack(tag);
         transaction.commit();
     }
 }
+
+
+.loadMainAreaFragment(getParentFragment(), newFragment, SearchResultListFragment.TAG);
