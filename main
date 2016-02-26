@@ -1,0 +1,64 @@
+
+
+
+ public void loadFragment(Fragment parent, Fragment fragment, String tag) {
+        mContainerFragment.replaceFragment(parent.getChildFragmentManager(),
+                fragment, tag);
+    }
+ @Override
+    public void onBackPressed() {
+        Fragment fragment = mViewPagerAdapter.getItem(mViewPager.getCurrentItem());
+        FragmentManager fragmentManager = fragment.getChildFragmentManager();
+        int sizeStackEntry = fragmentManager.getBackStackEntryCount();
+        if (sizeStackEntry > 0) {
+            if (sizeStackEntry == 1) {
+                super.onBackPressed();
+            }
+            fragmentManager.popBackStack();
+            return;
+        }
+        super.onBackPressed();
+    }
+    
+    
+
+public class ContainerFragment extends Fragment {
+    private ArrayList<Entity> mListData;
+
+    public static TopScreenContainerFragment newInstance(ArrayList<Entity> list) {
+        TopScreenContainerFragment fragment = new TopScreenContainerFragment();
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(Constant.DATA_KEY, list);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public TopScreenContainerFragment() {
+        // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mListData = getArguments().getParcelableArrayList(Constant.DATA_KEY);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        Fragment fragment = new TopScreenFragment().newInstance(mListData);
+        replaceFragment(getChildFragmentManager(), fragment, TopScreenFragment.TAG);
+        return inflater.inflate(R.layout.topscreencontainerfragment, container, false);
+    }
+
+
+    public void replaceFragment(FragmentManager fragmentManager, Fragment fragment, String tag) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.topscreencontainerfragment_framelayout, fragment, tag);
+        transaction.addToBackStack(tag);
+        transaction.commit();
+    }
+}
